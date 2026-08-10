@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESTUDOCERTO — App de Estudos ENEM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#0f1222; --muted:#5b5f6b; --bg:#f7f7fb; --card:#ffffff; --line:#e7e7ee;
+    --accent1:#5b47e8; --accent2:#8b5cf6; --green:#16a34a; --orange:#e08a1f; --red:#dc2626;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',Arial,sans-serif; background:var(--bg); color:var(--ink); }
+  .app { max-width:480px; margin:0 auto; min-height:100vh; background:var(--bg); padding-bottom:40px; }
+  header { background:linear-gradient(135deg,var(--accent1),var(--accent2)); padding:22px 20px 26px; color:white; border-radius:0 0 20px 20px; display:flex; justify-content:space-between; align-items:flex-start; }
+  header .brand { font-weight:800; font-size:18px; letter-spacing:-0.02em; }
+  header .tag { font-size:13px; opacity:0.85; margin-top:2px; }
+  header .streak { background:rgba(255,255,255,0.18); border-radius:999px; padding:6px 12px; font-size:13px; font-weight:700; white-space:nowrap; }
+  nav.tabs { display:flex; gap:8px; padding:14px 16px 0; }
+  nav.tabs button { flex:1; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 6px; font-size:12.5px; font-weight:600; color:var(--muted); cursor:pointer; }
+  nav.tabs button.active { background:var(--accent1); color:white; border-color:var(--accent1); }
+  main { padding:18px 16px 0; }
+  h2 { font-size:19px; margin-bottom:4px; }
+  p.muted { color:var(--muted); font-size:13.5px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:14px; }
+
+  .stat-row { display:flex; gap:10px; margin-bottom:16px; }
+  .stat-box { flex:1; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; text-align:center; }
+  .stat-box .num { font-size:22px; font-weight:800; color:var(--accent1); }
+  .stat-box .lab { font-size:11px; color:var(--muted); margin-top:2px; }
+  .bar-row { margin-bottom:12px; }
+  .bar-row .lab { display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }
+  .bar-row .lab b { font-weight:600; }
+  .bar-track { background:#eceaf6; border-radius:8px; height:10px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:8px; transition:width 0.4s ease; }
+  .reco { background:linear-gradient(135deg,#eef0ff,#f5eefe); border:1px solid #dcd8f7; border-radius:14px; padding:16px; margin-top:6px; }
+  .reco .lab-eyebrow { font-size:11px; font-weight:700; color:var(--accent1); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px; }
+  .reco h3 { font-size:16px; margin-bottom:6px; }
+  .reco p { font-size:13px; color:var(--muted); margin-bottom:12px; }
+  .btn { display:inline-block; background:linear-gradient(135deg,var(--accent1),var(--accent2)); color:white; font-weight:700; font-size:14px; padding:11px 20px; border-radius:10px; border:none; cursor:pointer; text-decoration:none; }
+  .btn.secondary { background:var(--card); color:var(--accent1); border:1px solid var(--accent1); }
+  .btn.block { display:block; width:100%; text-align:center; }
+  .btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+  .history-item { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--line); font-size:12.5px; }
+  .history-item:last-child { border-bottom:none; }
+  .history-item .l { color:var(--muted); }
+  .history-item .r { font-weight:700; }
+
+  .trilha-card { cursor:pointer; }
+  .trilha-card .top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .trilha-card h3 { font-size:16px; }
+  .trilha-card .pct { font-size:12px; color:var(--muted); background:#eceaf6; padding:3px 9px; border-radius:999px; }
+  .trilha-card .prog { font-size:12.5px; color:var(--accent1); font-weight:600; margin-top:6px; }
+
+  .nivel-card { display:flex; align-items:center; gap:12px; padding:14px 16px; }
+  .nivel-card .circle {
+    width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:13px; flex-shrink:0; color:white; background:#c7c5da;
+  }
+  .nivel-card.done .circle { background:var(--green); }
+  .nivel-card.locked .circle { background:#d7d5e8; color:#9a97b3; }
+  .nivel-card .info { flex:1; }
+  .nivel-card .info h4 { font-size:14.5px; margin-bottom:2px; }
+  .nivel-card .info p { font-size:12px; color:var(--muted); }
+  .nivel-card .score { font-size:13px; font-weight:700; color:var(--accent1); white-space:nowrap; }
+
+  .question { margin-bottom:20px; }
+  .question .qtext { font-size:14.5px; font-weight:600; margin-bottom:10px; }
+  .option { display:flex; align-items:flex-start; gap:10px; padding:11px 12px; border:1px solid var(--line); border-radius:10px; margin-bottom:8px; cursor:pointer; font-size:13.5px; }
+  .option:hover { border-color:var(--accent1); }
+  .option input { margin-top:2px; }
+  .option.correct { border-color:var(--green); background:#f0fdf4; }
+  .option.wrong { border-color:var(--red); background:#fef2f2; }
+  .explanation { display:none; background:#f6f5fb; border-radius:10px; padding:10px 12px; font-size:12.5px; color:var(--muted); margin-top:6px; }
+  .explanation.show { display:block; }
+
+  .result-box { text-align:center; padding:10px 0 20px; }
+  .result-box .score { font-size:38px; font-weight:800; color:var(--accent1); }
+  .result-box p { color:var(--muted); font-size:14px; margin-top:4px; }
+  .result-box .record { display:inline-block; margin-top:10px; background:#fff7e6; color:#b8860b; font-weight:700; font-size:12.5px; padding:6px 14px; border-radius:999px; }
+
+  .eyebrow-tag { font-size:11px; font-weight:700; color:var(--accent1); text-transform:uppercase; letter-spacing:0.05em; background:#eceaf6; display:inline-block; padding:4px 10px; border-radius:999px; }
+  #guia-conteudo p { font-size:14px; color:#33364a; margin-bottom:12px; line-height:1.6; }
+  #guia-conteudo p:last-child { margin-bottom:0; }
+  .hidden { display:none !important; }
+  footer.disclaimer { text-align:center; font-size:10.5px; color:#a6a9b3; padding:24px 20px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div>
+      <div class="brand">ESTUDOCERTO</div>
+      <div class="tag">Estude melhor, não mais.</div>
+    </div>
+    <div class="streak" id="streak-badge">🔥 0 dias</div>
+  </header>
+
+  <nav class="tabs">
+    <button id="tab-painel" class="active" onclick="showView('painel')">Painel</button>
+    <button id="tab-trilhas" onclick="showView('trilhas')">Trilhas</button>
+  </nav>
+
+  <main>
+
+    <div id="view-painel">
+      <h2>Seu painel</h2>
+      <p class="muted" style="margin-bottom:16px;">Desempenho por matéria, atualizado a cada simulado.</p>
+
+      <div class="stat-row">
+        <div class="stat-box"><div class="num" id="stat-total">0</div><div class="lab">simulados feitos</div></div>
+        <div class="stat-box"><div class="num" id="stat-media">—</div><div class="lab">média geral</div></div>
+      </div>
+
+      <div class="card" id="bars-container"></div>
+
+      <div class="reco" id="reco-box"></div>
+
+      <div class="card" id="history-card" style="margin-top:14px;">
+        <h4 style="font-size:14px;margin-bottom:8px;">Atividade recente</h4>
+        <div id="history-list"><p class="muted">Nenhum simulado feito ainda.</p></div>
+      </div>
+    </div>
+
+    <div id="view-trilhas" class="hidden">
+      <h2>Trilhas por matéria</h2>
+      <p class="muted" style="margin-bottom:16px;">Ordenadas pelo que mais cai na prova.</p>
+      <div id="trilhas-list"></div>
+    </div>
+
+    <div id="view-niveis" class="hidden">
+      <button class="btn secondary" style="margin-bottom:14px;" onclick="showView('trilhas')">← Voltar</button>
+      <h2 id="niveis-title"></h2>
+      <p class="muted" style="margin-bottom:16px;">Complete os níveis na ordem para destravar o próximo.</p>
+      <div id="niveis-list"></div>
+    </div>
+
+    <div id="view-guia" class="hidden">
+      <button class="btn secondary" style="margin-bottom:14px;" onclick="voltarParaNiveis()">← Voltar</button>
+      <div class="card">
+        <div class="eyebrow-tag" id="guia-topico-tag"></div>
+        <h2 id="guia-title" style="margin-top:6px;"></h2>
+        <div id="guia-conteudo" style="margin-top:10px;"></div>
+      </div>
+      <button class="btn block" id="btn-ir-simulado">Fazer mini simulado (6 questões) →</button>
+    </div>
+
+    <div id="view-simulado" class="hidden">
+      <button class="btn secondary" style="margin-bottom:14px;" onclick="voltarParaGuia()">← Ver guia de novo</button>
+      <h2 id="sim-title"></h2>
+      <p class="muted" style="margin-bottom:16px;">Responda todas e clique em corrigir.</p>
+      <div id="sim-questions"></div>
+      <button class="btn block" id="btn-corrigir" onclick="corrigirSimulado()">Corrigir simulado</button>
+    </div>
+
+    <div id="view-resultado" class="hidden">
+      <div class="card result-box">
+        <div class="score" id="res-score">0%</div>
+        <p id="res-text">acertos</p>
+        <div id="res-record" class="hidden record">🏆 Novo recorde nesse nível!</div>
+      </div>
+      <button class="btn block" onclick="voltarParaNiveis()" style="margin-bottom:10px;">Ver níveis da trilha</button>
+      <button class="btn secondary block" onclick="showView('painel')">Ver meu painel</button>
+    </div>
+
+  </main>
+
+  <footer class="disclaimer">Conteúdo de apoio aos estudos, sem vínculo oficial com o INEP ou o Ministério da Educação.</footer>
+</div>
+
+<script>
+// ---------- DATA ----------
+const TRILHAS = [
+  { id:"matematica", nome:"Matemática", prioridade:"Prioridade máxima", niveis: [
+    { id:"n1", topico:"Matemática básica e porcentagem", peso:"35% das questões", guia:"Porcentagem é uma forma de representar uma parte de 100. Para calcular X% de um valor, multiplique o valor pela fração X/100. Por exemplo, para achar 15% de 80: 80 × 0,15 = 12.\n\nA regra de três simples é usada quando duas grandezas são proporcionais. Se 3 cadernos custam R$45, o preço de 1 caderno é 45 ÷ 3 = R$15. Para 5 cadernos, multiplique: 15 × 5 = R$75.\n\nAtenção com descontos sucessivos: dois descontos de 10% NÃO somam 20%. Aplique um depois do outro: R$120 com 10% vira R$108; aplicando outros 10% sobre R$108, o valor final é R$97,20 — não R$96.", questoes:[
+      {q:"Um produto custa R$80 e está com desconto de 15%. Qual o valor final?", opts:["R$68,00","R$65,00","R$92,00","R$12,00"], correta:0, exp:"15% de 80 é 12. 80 − 12 = 68."},
+      {q:"Em uma pesquisa com 200 pessoas, 30% preferem estudar de manhã. Quantas pessoas isso representa?", opts:["30","60","70","170"], correta:1, exp:"30% de 200 = 60."},
+      {q:"Se 3 cadernos custam R$45, quanto custam 5 cadernos, mantendo a proporção?", opts:["R$60","R$65","R$75","R$90"], correta:2, exp:"Cada caderno custa R$15 (45÷3). 15 × 5 = 75."},
+      {q:"Um produto de R$120 recebeu dois descontos sucessivos de 10%. Qual o valor final aproximado?", opts:["R$97,20","R$96,00","R$100,00","R$108,00"], correta:0, exp:"120×0,9=108; 108×0,9=97,20."},
+      {q:"Se um carro percorre 60 km em 45 minutos, qual sua velocidade média em km/h?", opts:["60 km/h","75 km/h","80 km/h","90 km/h"], correta:2, exp:"45 min = 0,75h. 60 ÷ 0,75 = 80 km/h."},
+      {q:"Numa turma de 40 alunos, 25% foram reprovados. Quantos alunos passaram?", opts:["10","25","30","35"], correta:2, exp:"25% de 40 = 10 reprovados. 40 − 10 = 30 aprovados."}
+    ]},
+    { id:"n2", topico:"Estatística", peso:"11,7%", guia:"A média aritmética é a soma de todos os valores dividida pela quantidade de valores. Para {4,8,6,10,12}: soma=40, dividido por 5 = média 8.\n\nA moda é o valor que mais se repete no conjunto. A mediana é o valor central quando os números são organizados em ordem crescente — em {3,7,9,15,20}, o valor central é 9.\n\nProbabilidade simples é calculada dividindo o número de casos favoráveis pelo número total de casos possíveis. Em um dado de 6 faces, a chance de sair um número par (2,4,6) é 3 em 6, ou seja, 1/2.", questoes:[
+      {q:"Qual é a média aritmética dos números 4, 8, 6, 10 e 12?", opts:["7","8","9","10"], correta:1, exp:"Soma = 40. 40 ÷ 5 = 8."},
+      {q:"Em um conjunto de dados, a moda representa:", opts:["O valor do meio","O valor que mais se repete","A média dos valores","A diferença entre maior e menor"], correta:1, exp:"Moda é o valor mais frequente no conjunto."},
+      {q:"Qual é a mediana do conjunto {3, 7, 9, 15, 20}?", opts:["7","9","15","11"], correta:1, exp:"Em ordem crescente, o valor central é 9."},
+      {q:"Se a probabilidade de chover é de 40%, qual a probabilidade de não chover?", opts:["40%","50%","60%","70%"], correta:2, exp:"100% − 40% = 60%."},
+      {q:"Em um gráfico de barras, o eixo vertical geralmente representa:", opts:["Categorias","Frequência ou quantidade","Tempo apenas","Nome dos participantes"], correta:1, exp:"O eixo vertical costuma indicar frequência ou quantidade."},
+      {q:"Lançando um dado de 6 faces, qual a probabilidade de sair um número par?", opts:["1/6","1/3","1/2","2/3"], correta:2, exp:"3 números pares em 6 possíveis = 1/2."}
+    ]},
+    { id:"n3", topico:"Geometria espacial", peso:"11,2%", guia:"Volume mede o espaço ocupado por um sólido tridimensional. No cubo, a fórmula é aresta³ — um cubo de aresta 4cm tem volume 4³ = 64 cm³.\n\nNo paralelepípedo retangular (uma caixa), o volume é comprimento × largura × altura. Uma caixa de 3×4×5cm tem volume 60 cm³.\n\nÁrea total é a soma das áreas de todas as faces do sólido. No cubo, com 6 faces quadradas iguais, a área total é 6 × aresta².\n\nDica: se você dobrar a aresta de um cubo, o volume não dobra — multiplica por 8, porque depende da aresta ao cubo (2³=8).", questoes:[
+      {q:"Um cubo tem aresta de 4 cm. Qual o volume desse cubo?", opts:["16 cm³","48 cm³","64 cm³","12 cm³"], correta:2, exp:"Volume = aresta³ = 4³ = 64 cm³."},
+      {q:"A fórmula do volume de um paralelepípedo retangular é:", opts:["a+b+c","a×b×c","2(a+b+c)","a²+b²+c²"], correta:1, exp:"Volume = comprimento × largura × altura."},
+      {q:"Um prisma retangular tem dimensões 3cm, 4cm e 5cm. Qual seu volume?", opts:["12 cm³","20 cm³","60 cm³","47 cm³"], correta:2, exp:"3 × 4 × 5 = 60 cm³."},
+      {q:"A área total de um cubo de aresta 3 cm é:", opts:["9 cm²","27 cm²","54 cm²","18 cm²"], correta:2, exp:"6 faces × 3² = 6 × 9 = 54 cm²."},
+      {q:"Um objeto com formato esférico tem como principal característica:", opts:["Todas as faces planas","Distância constante do centro à superfície","Base circular e altura","Duas bases paralelas"], correta:1, exp:"Esfera: todos os pontos da superfície equidistam do centro."},
+      {q:"Se dobrarmos a aresta de um cubo, seu volume:", opts:["Dobra","Triplica","Quadruplica","Multiplica por 8"], correta:3, exp:"Volume ∝ aresta³. (2a)³ = 8a³."}
+    ]},
+    { id:"n4", topico:"Funções", peso:"11%", guia:"Uma função do 1º grau tem a forma f(x) = ax + b. O coeficiente \"a\" indica a inclinação da reta, e \"b\" é onde a reta cruza o eixo y.\n\nPara calcular f(5) em f(x)=2x+3, substitua x por 5: 2×5+3 = 13.\n\nPara resolver 3x−6=0, isole o x: 3x=6, então x=2.\n\nUma função do 2º grau (com x²) gera um gráfico em formato de parábola, diferente da reta da função do 1º grau.", questoes:[
+      {q:"Se f(x) = 2x + 3, qual o valor de f(5)?", opts:["10","13","8","15"], correta:1, exp:"2×5 + 3 = 13."},
+      {q:"Em uma função do 1º grau f(x)=ax+b, o coeficiente \"a\" representa:", opts:["O valor inicial","A inclinação da reta","O ponto de intersecção com y","O domínio da função"], correta:1, exp:"\"a\" é o coeficiente angular, define a inclinação."},
+      {q:"Qual o valor de x na equação 3x − 6 = 0?", opts:["1","2","3","6"], correta:1, exp:"3x = 6 → x = 2."},
+      {q:"Uma função do 2º grau tem gráfico em formato de:", opts:["Reta","Parábola","Círculo","Hipérbole"], correta:1, exp:"Função quadrática gera uma parábola."},
+      {q:"Se g(x) = x² − 4, qual o valor de g(3)?", opts:["5","9","13","-1"], correta:0, exp:"3² − 4 = 9 − 4 = 5."},
+      {q:"O valor de x que torna f(x)=5x−10 igual a zero é:", opts:["0","1","2","5"], correta:2, exp:"5x = 10 → x = 2."}
+    ]},
+    { id:"n5", topico:"Geometria plana", peso:"8,3%", guia:"A soma dos ângulos internos de qualquer triângulo é sempre 180°. Num triângulo equilátero, os três ângulos são iguais: 180°÷3 = 60° cada.\n\nO Teorema de Pitágoras se aplica a triângulos retângulos: a²+b²=c². Com catetos 3 e 4: 3²+4²=25, e a raiz de 25 é 5 — essa é a hipotenusa.\n\nA área de um triângulo é (base × altura) ÷ 2. A área de um quadrado é lado².\n\nDois ângulos que somam 180° são suplementares; os que somam 90° são complementares.", questoes:[
+      {q:"A soma dos ângulos internos de um triângulo é:", opts:["90°","180°","270°","360°"], correta:1, exp:"Sempre 180°, em qualquer triângulo."},
+      {q:"Pelo Teorema de Pitágoras, em um triângulo retângulo com catetos 3 e 4, a hipotenusa é:", opts:["5","6","7","8"], correta:0, exp:"3²+4²=25; √25=5."},
+      {q:"A área de um triângulo com base 10cm e altura 6cm é:", opts:["30 cm²","60 cm²","16 cm²","20 cm²"], correta:0, exp:"Área = (base × altura) ÷ 2 = 60 ÷ 2 = 30."},
+      {q:"Dois ângulos que somam 180° são chamados de:", opts:["Complementares","Suplementares","Opostos","Congruentes"], correta:1, exp:"Ângulos suplementares somam 180°."},
+      {q:"A área de um quadrado de lado 7cm é:", opts:["14 cm²","49 cm²","28 cm²","21 cm²"], correta:1, exp:"Área = lado² = 7² = 49."},
+      {q:"Em um triângulo equilátero, todos os ângulos internos medem:", opts:["45°","60°","90°","120°"], correta:1, exp:"180° ÷ 3 = 60° cada ângulo."}
+    ]}
+  ]},
+  { id:"linguagens", nome:"Linguagens", prioridade:"Interpretação é transversal", niveis: [
+    { id:"n1", topico:"Interpretação de texto", peso:"presente em toda a prova", guia:"Interpretar um texto vai além de entender as palavras — é buscar o propósito comunicativo do autor: o que ele quer que o leitor pense ou faça.\n\nInformação explícita é aquela escrita diretamente no texto. Informação subentendida precisa ser deduzida a partir do contexto, sem estar escrita literalmente.\n\nEm um texto argumentativo, a tese é o ponto de vista central defendido pelo autor — geralmente na introdução. Um texto informativo tende a apresentar fatos de forma mais neutra.\n\nFique atento à ironia: quando presente, o sentido pretendido pode ser o oposto do sentido literal das palavras.", questoes:[
+      {q:"Ao interpretar um texto, identificar a intenção do autor é buscar:", opts:["O tema apenas","O propósito comunicativo","Apenas a gramática","O número de parágrafos"], correta:1, exp:"Interpretar é buscar entender o propósito comunicativo do texto."},
+      {q:"Um argumento implícito, que pode ser deduzido mas não está escrito diretamente, é chamado de:", opts:["Explícito","Subentendido","Redundante","Descritivo"], correta:1, exp:"Subentendido = implícito, dedutível a partir do contexto."},
+      {q:"Ao ler um texto argumentativo, identificar a tese do autor significa encontrar:", opts:["O exemplo mais engraçado","O ponto de vista central defendido","A conclusão gramatical","O número de citações"], correta:1, exp:"Tese é a ideia central que o autor defende no texto."},
+      {q:"Um texto que apresenta fatos sem opinião do autor é predominantemente:", opts:["Argumentativo","Informativo/expositivo","Poético","Injuntivo"], correta:1, exp:"Texto informativo relata fatos de forma mais objetiva."},
+      {q:"Quando um texto usa ironia, o sentido literal das palavras:", opts:["Coincide sempre com o sentido pretendido","Pode ser oposto ao sentido pretendido","É irrelevante","Só existe em poesia"], correta:1, exp:"Na ironia, o sentido pretendido costuma ser oposto ao literal."},
+      {q:"Um texto injuntivo tem como principal função:", opts:["Narrar uma história","Instruir ou orientar uma ação","Descrever uma paisagem","Expressar emoções pessoais"], correta:1, exp:"Textos injuntivos orientam ações (manuais, receitas, bulas)."}
+    ]},
+    { id:"n2", topico:"Gêneros textuais e variação linguística", peso:"alta incidência", guia:"Gênero textual é a forma que um texto assume socialmente — uma carta, uma receita, uma notícia. Cada gênero tem uma função e estrutura esperada.\n\nVariação linguística é como a língua muda conforme quem fala, onde fala e em que situação: variações regionais (sotaques e vocabulário), sociais e estilísticas (formal x informal).\n\nTextos como bulas e receitas são injuntivos — orientam uma ação passo a passo. Uma notícia de jornal busca clareza, objetividade e a norma padrão, evitando gírias.", questoes:[
+      {q:"Um texto que usa gírias e se dirige a um grupo específico apresenta qual fenômeno linguístico?", opts:["Norma culta","Variação linguística","Coesão textual","Ambiguidade"], correta:1, exp:"Variação linguística é a adaptação da língua ao contexto social."},
+      {q:"Uma carta formal, um e-mail comercial e um requerimento pertencem a qual tipo de gênero?", opts:["Narrativo","Epistolar/formal","Poético","Dramático"], correta:1, exp:"São gêneros ligados à correspondência formal."},
+      {q:"O uso de \"cê\" em vez de \"você\" em uma conversa informal é exemplo de variação:", opts:["Regional","Histórica","Estilística/informal","Nenhuma das anteriores"], correta:2, exp:"É variação estilística, conforme o grau de formalidade."},
+      {q:"Uma bula de remédio e uma receita culinária pertencem ao gênero:", opts:["Narrativo","Instrucional/injuntivo","Lírico","Jornalístico"], correta:1, exp:"Ambos orientam uma ação passo a passo."},
+      {q:"Uma notícia de jornal deve, preferencialmente, apresentar linguagem:", opts:["Informal e regional","Clara, objetiva e na norma padrão","Poética e subjetiva","Repleta de gírias"], correta:1, exp:"Notícias buscam clareza e objetividade na norma padrão."},
+      {q:"A diferença de pronúncia entre uma pessoa do Nordeste e outra do Sul do Brasil exemplifica variação:", opts:["Histórica","Regional","Social","Não é variação, é erro"], correta:1, exp:"É variação regional (dialetal)."}
+    ]},
+    { id:"n3", topico:"Funções da linguagem", peso:"conceitual, recorrente", guia:"Todo ato de comunicação tem uma função predominante. A função referencial foca na informação transmitida. A função emotiva expressa sentimentos do próprio emissor.\n\nA função conativa (apelativa) busca convencer ou orientar o receptor a agir — comum em publicidade. A função poética valoriza a forma e o som das palavras, comum na poesia.\n\nA função fática serve para iniciar, manter ou encerrar contato social (\"alô, tudo bem?\"). A função metalinguística usa a própria língua para explicar a língua.", questoes:[
+      {q:"A função da linguagem cujo foco é a própria língua é chamada de:", opts:["Metalinguística","Emotiva","Conativa","Poética"], correta:0, exp:"Metalinguística: a linguagem fala sobre si mesma."},
+      {q:"Um texto publicitário que busca convencer o leitor a comprar algo usa principalmente a função:", opts:["Referencial","Conativa/apelativa","Metalinguística","Emotiva"], correta:1, exp:"Função conativa/apelativa busca persuadir o receptor."},
+      {q:"Um poema que valoriza a forma e o som das palavras usa principalmente a função:", opts:["Poética","Referencial","Fática","Emotiva"], correta:0, exp:"Função poética: foco na forma/estética da mensagem."},
+      {q:"Uma conversa de \"alô, tudo bem?\" só para manter contato social exemplifica a função:", opts:["Fática","Conativa","Referencial","Metalinguística"], correta:0, exp:"Função fática: manter ou iniciar contato comunicativo."},
+      {q:"Um texto que relata fatos objetivamente, com foco na informação, usa a função:", opts:["Emotiva","Referencial","Poética","Fática"], correta:1, exp:"Função referencial: foco no conteúdo/informação transmitida."},
+      {q:"Uma carta pessoal cheia de sentimentos do remetente usa principalmente a função:", opts:["Emotiva/expressiva","Referencial","Conativa","Metalinguística"], correta:0, exp:"Função emotiva expressa sentimentos do emissor."}
+    ]},
+    { id:"n4", topico:"Literatura: Modernismo", peso:"recorrente em provas", guia:"O Modernismo brasileiro começa oficialmente com a Semana de Arte Moderna, em 1922, em São Paulo — marco de ruptura com os padrões estéticos europeus.\n\nA primeira fase (1922-1930) foi marcada pela experimentação e busca de identidade nacional, com Mário de Andrade e Oswald de Andrade — este criou o Manifesto Antropófago, que propunha \"devorar\" culturalmente influências estrangeiras.\n\nA segunda fase (a partir de 1930) trouxe romances mais sociais e regionalistas. A terceira fase (a partir de 1945) inclui Guimarães Rosa e Clarice Lispector, com maior experimentação de linguagem.", questoes:[
+      {q:"Qual movimento literário brasileiro tem início marcado pela Semana de Arte Moderna de 1922?", opts:["Romantismo","Modernismo","Parnasianismo","Barroco"], correta:1, exp:"A Semana de 22 inaugura o Modernismo no Brasil."},
+      {q:"A primeira fase do Modernismo brasileiro (1922-1930) é marcada por:", opts:["Busca de identidade nacional e ruptura com padrões europeus","Retorno ao Classicismo","Foco exclusivo em temas religiosos","Poesia estritamente formal"], correta:0, exp:"A 1ª fase busca nacionalismo e experimentação estética."},
+      {q:"Autores como Mário de Andrade e Oswald de Andrade pertencem a qual fase do Modernismo?", opts:["Segunda fase","Primeira fase","Terceira fase","Nenhuma, são românticos"], correta:1, exp:"São figuras centrais da 1ª fase modernista."},
+      {q:"A segunda fase do Modernismo brasileiro (a partir de 1930) é marcada por:", opts:["Poesia pura sem contexto social","Maior aprofundamento social e regionalista","Retorno ao Parnasianismo","Ausência de prosa"], correta:1, exp:"A 2ª fase traz romance regionalista e engajamento social."},
+      {q:"Guimarães Rosa e Clarice Lispector são associados a qual fase literária?", opts:["Terceira fase do Modernismo","Primeira fase do Modernismo","Romantismo","Realismo"], correta:0, exp:"Pertencem à 3ª fase (geração de 45 em diante)."},
+      {q:"O Manifesto Antropófago, de Oswald de Andrade, propunha:", opts:["Rejeição total de influências estrangeiras","\"Devorar\" culturalmente influências externas e recriar algo nacional","Retorno à literatura portuguesa clássica","Abandono da língua portuguesa"], correta:1, exp:"Antropofagia cultural: absorver e transformar influências externas."}
+    ]},
+    { id:"n5", topico:"Textos multimodais", peso:"crescente nas provas", guia:"Textos multimodais combinam mais de uma linguagem — verbal e visual — para construir sentido. Memes, tirinhas, infográficos e anúncios são exemplos comuns.\n\nEm uma tirinha, o humor normalmente nasce da relação entre o que é dito e o que é mostrado, criando uma quebra de expectativa. Em um infográfico, dados são organizados visualmente para facilitar a compreensão.\n\nEmojis, numa conversa de texto, reforçam o tom emocional — não substituem as palavras, mas complementam o sentido. Interpretar esses textos exige olhar tanto para o escrito quanto para os elementos visuais.", questoes:[
+      {q:"Um meme que combina texto e imagem para gerar sentido é chamado de texto:", opts:["Dissertativo","Multimodal","Injuntivo","Descritivo"], correta:1, exp:"Textos multimodais combinam múltiplas linguagens."},
+      {q:"Em uma tirinha, o humor geralmente é construído por:", opts:["Apenas o texto escrito","A relação entre imagem e texto, com quebra de expectativa","Cores vibrantes apenas","Ausência de personagens"], correta:1, exp:"O humor surge da interação entre imagem e texto."},
+      {q:"Um infográfico é um exemplo de texto que combina:", opts:["Somente números","Dados visuais e texto de forma organizada","Apenas ilustrações sem dados","Apenas título e rodapé"], correta:1, exp:"Infográficos unem dados e elementos visuais."},
+      {q:"Em uma propaganda publicitária multimodal, a imagem geralmente tem a função de:", opts:["Substituir todo o texto","Reforçar ou complementar a mensagem verbal","Confundir o leitor","Ser apenas decorativa sem função"], correta:1, exp:"A imagem reforça ou complementa a mensagem verbal."},
+      {q:"Emojis em uma conversa de texto funcionam como recurso:", opts:["Puramente decorativo sem sentido","Que agrega sentido emocional ou de ênfase","Substituto obrigatório de palavras","Apenas usado por crianças"], correta:1, exp:"Emojis adicionam uma camada de sentido emocional/expressivo."},
+      {q:"A leitura de um texto multimodal exige do leitor:", opts:["Apenas decodificação de letras","Articulação entre diferentes linguagens (verbal, visual etc.)","Ignorar as imagens","Memorização de vocabulário"], correta:1, exp:"Exige letramento multimodal, articulando diferentes linguagens."}
+    ]}
+  ]},
+  { id:"humanas", nome:"Ciências Humanas", prioridade:"Geopolítica + espaço urbano/agrário", niveis: [
+    { id:"n1", topico:"Geopolítica", peso:"12,3%", guia:"Geopolítica estuda como fatores territoriais, econômicos e culturais influenciam as relações entre países. Blocos econômicos, como o Mercosul, existem para facilitar o comércio entre países-membros, reduzindo tarifas.\n\nA globalização é o processo de integração econômica e cultural entre países, intensificado pela tecnologia.\n\nOrganismos como a ONU foram criados para promover a paz e a cooperação internacional. O termo \"Sul Global\" agrupa países em desenvolvimento, historicamente menos industrializados — não é só uma referência geográfica.", questoes:[
+      {q:"Blocos econômicos como o Mercosul têm como principal objetivo:", opts:["Unificar idiomas","Facilitar o comércio entre países-membros","Eliminar fronteiras políticas","Criar moeda única obrigatória"], correta:1, exp:"Blocos econômicos reduzem barreiras comerciais entre membros."},
+      {q:"O processo de integração econômica e cultural entre países, intensificado pela tecnologia, é chamado de:", opts:["Globalização","Colonialismo","Isolacionismo","Feudalismo"], correta:0, exp:"Globalização é a integração econômica/cultural mundial."},
+      {q:"A ONU foi criada principalmente para:", opts:["Promover o comércio entre nações","Manter a paz e segurança internacional","Unificar moedas mundiais","Controlar a educação global"], correta:1, exp:"A ONU busca manter paz e cooperação internacional."},
+      {q:"Um conflito motivado por disputas territoriais e de recursos naturais é um exemplo clássico de conflito:", opts:["Geopolítico","Estritamente religioso","Apenas cultural","Sem causa identificável"], correta:0, exp:"Disputas territoriais e por recursos são geopolíticas."},
+      {q:"O termo \"Sul Global\" costuma se referir a:", opts:["Apenas países do hemisfério sul geograficamente","Países em desenvolvimento, historicamente menos industrializados","Somente países europeus","Nenhum grupo específico"], correta:1, exp:"Sul Global agrupa países em desenvolvimento, não só geografia."},
+      {q:"A dependência econômica de países em desenvolvimento em relação a potências industrializadas é tema central da teoria:", opts:["Da dependência","Do isolacionismo","Do mercantilismo puro","Do feudalismo"], correta:0, exp:"A teoria da dependência analisa essa relação centro-periferia."}
+    ]},
+    { id:"n2", topico:"Espaço agrário", peso:"11,6%", guia:"O espaço agrário brasileiro é marcado historicamente pela concentração fundiária — poucos proprietários com grandes extensões de terra. A reforma agrária busca redistribuir essas terras de forma mais igualitária.\n\nO agronegócio é caracterizado por grandes propriedades voltadas à exportação, com alta tecnologia. A agricultura familiar ocupa pequenas propriedades, conduzidas pela própria família.\n\nA monocultura — cultivo de uma única espécie em grande escala — é comum no agronegócio, e o uso intensivo de agrotóxicos é associado a impactos ambientais e à saúde.", questoes:[
+      {q:"A concentração de terras nas mãos de poucos proprietários é chamada de:", opts:["Reforma agrária","Concentração fundiária","Urbanização","Descentralização"], correta:1, exp:"Concentração fundiária: poucos donos, muita terra."},
+      {q:"A reforma agrária tem como principal objetivo:", opts:["Aumentar o latifúndio","Redistribuir terras de forma mais igualitária","Extinguir a agricultura familiar","Privatizar terras públicas"], correta:1, exp:"Busca redistribuir a terra de forma mais igualitária."},
+      {q:"O agronegócio no Brasil é caracterizado principalmente por:", opts:["Pequenas propriedades de subsistência","Grandes propriedades voltadas à exportação e alta tecnologia","Ausência de mecanização","Produção exclusivamente artesanal"], correta:1, exp:"Agronegócio: larga escala, tecnologia e foco em exportação."},
+      {q:"A agricultura familiar se diferencia do agronegócio principalmente por:", opts:["Usar apenas tecnologia de ponta","Ser conduzida majoritariamente pela mão de obra da própria família, em pequena escala","Focar só em exportação","Não produzir alimentos"], correta:1, exp:"Agricultura familiar: pequena escala, mão de obra da família."},
+      {q:"O uso excessivo de agrotóxicos no espaço agrário brasileiro é frequentemente associado a:", opts:["Melhoria total do meio ambiente","Impactos ambientais e à saúde","Nenhum efeito colateral","Redução de produtividade sempre"], correta:1, exp:"Agrotóxicos têm impactos ambientais e à saúde documentados."},
+      {q:"A monocultura, prática comum no espaço agrário brasileiro, consiste em:", opts:["Cultivar diversas espécies numa mesma área","Cultivar uma única espécie em grande escala","Não cultivar nada","Apenas pecuária extensiva"], correta:1, exp:"Monocultura: predomínio de uma única cultura na área."}
+    ]},
+    { id:"n3", topico:"Espaço urbano", peso:"11%", guia:"O crescimento acelerado e desordenado das cidades brasileiras gerou favelas e falta de infraestrutura — esse processo é a urbanização acelerada.\n\nA segregação socioespacial é a separação de grupos sociais em diferentes áreas da cidade, geralmente ligada à renda. A gentrificação ocorre quando bairros populares recebem valorização e expulsam os moradores originais pelo custo.\n\nA mobilidade urbana eficiente depende de investimento em transporte público de qualidade. As \"ilhas de calor\" surgem da concentração de concreto e asfalto, com pouca vegetação.", questoes:[
+      {q:"O crescimento desordenado das cidades, com favelas e falta de infraestrutura, é típico de qual processo?", opts:["Urbanização acelerada","Reforma agrária","Globalização financeira","Industrialização 4.0"], correta:0, exp:"Urbanização acelerada sem planejamento gera esses problemas."},
+      {q:"A segregação socioespacial nas cidades se refere a:", opts:["Distribuição igualitária de renda no espaço urbano","Separação de grupos sociais em diferentes áreas da cidade, geralmente por renda","Ausência de bairros","Integração total entre classes sociais"], correta:1, exp:"Segregação: separação espacial geralmente ligada à renda."},
+      {q:"A gentrificação é um processo urbano em que:", opts:["Bairros populares recebem valorização e expulsam moradores originais pelo custo","Bairros ricos se tornam pobres","Não há qualquer mudança social","Apenas prédios são construídos sem efeito social"], correta:0, exp:"Gentrificação: valorização que desloca moradores antigos pelo custo."},
+      {q:"A mobilidade urbana eficiente depende principalmente de:", opts:["Apenas mais carros particulares nas ruas","Investimento em transporte público de qualidade","Eliminação total de veículos","Redução da população urbana"], correta:1, exp:"Transporte público de qualidade é central para mobilidade eficiente."},
+      {q:"As \"ilhas de calor\" nas grandes cidades são causadas principalmente por:", opts:["Excesso de áreas verdes","Concentração de concreto/asfalto e pouca vegetação","Proximidade do mar","Altitude elevada"], correta:1, exp:"Concreto e asfalto retêm calor; pouca vegetação agrava o efeito."},
+      {q:"A verticalização urbana (construção de prédios altos) ocorre principalmente devido a:", opts:["Abundância de terrenos baratos","Escassez de espaço e alto valor do solo urbano","Diminuição da população","Ausência de zoneamento"], correta:1, exp:"Verticalização responde à escassez e valorização do solo urbano."}
+    ]},
+    { id:"n4", topico:"Brasil Colônia", peso:"13%", guia:"A economia do Brasil colonial se baseava no sistema de plantation: monocultura de exportação (como o açúcar), latifúndios e mão de obra escravizada africana.\n\nAs capitanias hereditárias facilitaram a administração e colonização do vasto território. O ciclo do ouro, no século XVIII, teve Minas Gerais como principal região.\n\nO pacto colonial obrigava a colônia a comercializar exclusivamente com Portugal. As entradas e bandeiras exploravam o território em busca de riquezas e também capturavam populações indígenas.", questoes:[
+      {q:"A economia colonial baseada em monocultura de exportação e mão de obra escravizada é o sistema:", opts:["Industrial","Plantation","Cooperativista","Socialista"], correta:1, exp:"Plantation: monocultura + latifúndio + escravidão, voltado à exportação."},
+      {q:"As capitanias hereditárias, no início da colonização, tinham como objetivo principal:", opts:["Democratizar a posse da terra","Facilitar a administração e colonização do território","Abolir a escravidão","Criar cidades autônomas sem vínculo com Portugal"], correta:1, exp:"Capitanias organizavam a colonização e administração territorial."},
+      {q:"O ciclo do ouro no Brasil colonial teve como principal região:", opts:["Bahia","Minas Gerais","Rio Grande do Sul","Amazonas"], correta:1, exp:"Minas Gerais foi o centro da mineração aurífera no século XVIII."},
+      {q:"O pacto colonial (exclusivo metropolitano) determinava que a colônia deveria:", opts:["Comerciar livremente com qualquer país","Comercializar exclusivamente com a metrópole","Ser totalmente independente economicamente","Produzir apenas para consumo interno"], correta:1, exp:"Pacto colonial: exclusividade comercial com a metrópole."},
+      {q:"A mão de obra predominante na economia açucareira do Brasil colonial foi:", opts:["Trabalho assalariado livre","Mão de obra escravizada africana","Servidão feudal europeia","Trabalho voluntário indígena remunerado"], correta:1, exp:"A escravidão africana foi a base da economia açucareira."},
+      {q:"As entradas e bandeiras, no período colonial, tinham como um dos objetivos:", opts:["Apenas catequizar populações europeias","Explorar o território e capturar indígenas/buscar riquezas","Fundar universidades","Estabelecer o parlamentarismo"], correta:1, exp:"Bandeiras exploravam território, buscavam riquezas e capturavam indígenas."}
+    ]},
+    { id:"n5", topico:"Era Vargas e Tempo Presente", peso:"recorrente", guia:"O período populista no Brasil, associado à Era Vargas, foi marcado por governos com forte apoio popular direto e políticas trabalhistas e nacionalistas — como a criação da CLT.\n\nO Estado Novo (1937-1945), sob Getúlio Vargas, teve características autoritárias e de centralização de poder.\n\nApós o fim do regime militar, o Brasil viveu a redemocratização, culminando na Constituição de 1988 — a \"Constituição Cidadã\", que ampliou direitos sociais e civis. No \"Tempo Presente\", os temas mais discutidos giram em torno de democracia, direitos sociais e desafios econômicos.", questoes:[
+      {q:"O período populista no Brasil é caracterizado por:", opts:["Governos com apoio popular direto e políticas trabalhistas/nacionalistas","Ausência total de intervenção do Estado","Regime parlamentarista pleno","Isolamento total no cenário internacional"], correta:0, exp:"Populismo: liderança com apelo direto às massas e políticas sociais."},
+      {q:"A CLT, criada na Era Vargas, tinha como objetivo:", opts:["Eliminar direitos trabalhistas","Regulamentar e garantir direitos trabalhistas","Proibir sindicatos","Aumentar a jornada de trabalho sem limites"], correta:1, exp:"A CLT organizou e garantiu direitos trabalhistas no Brasil."},
+      {q:"A Constituição de 1988 é frequentemente chamada de \"Constituição Cidadã\" por:", opts:["Restringir direitos civis","Ampliar direitos sociais e civis após a redemocratização","Manter o regime militar","Eliminar o voto direto"], correta:1, exp:"Ampliou direitos sociais e civis após o fim da ditadura militar."},
+      {q:"O processo de redemocratização brasileira, após o regime militar, culminou principalmente com:", opts:["A Constituição de 1988","A Proclamação da República","A Independência do Brasil","A Abolição da escravidão"], correta:0, exp:"A Constituição de 1988 marca a redemocratização."},
+      {q:"O Estado Novo (1937-1945), sob Getúlio Vargas, foi marcado por:", opts:["Democracia plena e liberdade de imprensa total","Centralização de poder e características autoritárias","Ausência de qualquer governo central","Parlamentarismo pleno"], correta:1, exp:"O Estado Novo teve caráter autoritário e centralizador."},
+      {q:"No \"Tempo Presente\" (história recente do Brasil), um tema frequentemente discutido é:", opts:["Apenas eventos anteriores a 1900","A relação entre democracia, direitos sociais e desafios econômicos contemporâneos","Exclusivamente o período colonial","Apenas questões do século XIX"], correta:1, exp:"O Tempo Presente aborda temas democráticos e sociais recentes."}
+    ]}
+  ]},
+  { id:"natureza", nome:"Ciências da Natureza", prioridade:"Ecologia é 25% de Biologia", niveis: [
+    { id:"n1", topico:"Ecologia", peso:"25,2% (Biologia)", guia:"Em uma cadeia alimentar, os produtores geram energia pela fotossíntese, os consumidores se alimentam de outros seres vivos, e os decompositores reciclam a matéria orgânica.\n\nQuando várias cadeias se interligam, formam uma teia alimentar. Os ciclos biogeoquímicos (carbono, nitrogênio) descrevem como esses elementos circulam entre seres vivos e o ambiente.\n\nO efeito estufa é intensificado pelo aumento de gases como CO₂ na atmosfera. E o mutualismo (benefício mútuo entre espécies) mostra como os seres vivos interagem dentro de um ecossistema.", questoes:[
+      {q:"Em uma cadeia alimentar, os organismos que se alimentam de outros animais são chamados de:", opts:["Produtores","Consumidores","Decompositores","Autótrofos"], correta:1, exp:"Consumidores se alimentam de outros seres vivos na cadeia alimentar."},
+      {q:"Os decompositores têm papel ecológico fundamental porque:", opts:["Produzem oxigênio apenas","Reciclam nutrientes ao decompor matéria orgânica","Só existem em ambientes aquáticos","Não participam do ciclo da matéria"], correta:1, exp:"Decompositores reciclam nutrientes de volta ao ecossistema."},
+      {q:"O ciclo biogeoquímico que envolve a fixação de nitrogênio atmosférico por bactérias é o ciclo do:", opts:["Carbono","Nitrogênio","Oxigênio","Fósforo"], correta:1, exp:"Bactérias fixadoras convertem N₂ atmosférico em formas utilizáveis."},
+      {q:"Uma cadeia alimentar composta por múltiplas cadeias interligadas é chamada de:", opts:["Bioma","Teia alimentar","Habitat","Nicho ecológico"], correta:1, exp:"Teia alimentar: interligação de várias cadeias alimentares."},
+      {q:"O efeito estufa é intensificado principalmente pelo aumento de:", opts:["Oxigênio na atmosfera","Gases como CO₂ na atmosfera","Nitrogênio líquido","Vapor de mercúrio"], correta:1, exp:"Gases de efeito estufa (CO₂, metano) retêm calor na atmosfera."},
+      {q:"A relação ecológica em que duas espécies se beneficiam mutuamente é chamada de:", opts:["Parasitismo","Mutualismo","Competição","Predatismo"], correta:1, exp:"Mutualismo: benefício mútuo entre as espécies envolvidas."}
+    ]},
+    { id:"n2", topico:"Eletrodinâmica", peso:"20% (Física)", guia:"A Lei de Ohm é a base da eletrodinâmica: U = R × I. A potência elétrica é calculada por P = U × I.\n\nEm um circuito com resistores em série, as resistências se somam. Em paralelo, a resistência total do conjunto é sempre menor que a menor resistência individual.\n\nA corrente é medida em Ampère (A), a tensão em Volt (V), e a resistência em Ohm (Ω). Um curto-circuito acontece quando a corrente encontra um caminho de resistência muito baixa, gerando uma corrente perigosamente alta.", questoes:[
+      {q:"Em um circuito elétrico simples, a Lei de Ohm relaciona tensão (U), resistência (R) e corrente (I) por:", opts:["U = R/I","U = R × I","U = I/R","R = U × I"], correta:1, exp:"Lei de Ohm: U = R × I."},
+      {q:"A potência elétrica (P) de um dispositivo pode ser calculada por:", opts:["P = U × I","P = U/I","P = U+I","P = U−I"], correta:0, exp:"Potência = tensão × corrente."},
+      {q:"Em um circuito com resistores em série, a resistência total é:", opts:["Igual à menor resistência","A soma das resistências individuais","Sempre menor que qualquer resistência individual","Igual a zero"], correta:1, exp:"Em série, as resistências se somam."},
+      {q:"Em um circuito com resistores em paralelo, a resistência total do conjunto é:", opts:["Sempre maior que a maior resistência individual","Sempre menor que a menor resistência individual","Igual à soma simples","Impossível calcular"], correta:1, exp:"Em paralelo, a resistência total é menor que qualquer resistência individual."},
+      {q:"A unidade de medida da corrente elétrica no Sistema Internacional é:", opts:["Volt","Watt","Ampère","Ohm"], correta:2, exp:"A corrente elétrica é medida em Ampère (A)."},
+      {q:"Um curto-circuito ocorre quando:", opts:["A resistência do circuito aumenta muito","A corrente encontra um caminho de resistência muito baixa, causando alta corrente","A tensão cai a zero permanentemente","O circuito é desligado corretamente"], correta:1, exp:"Curto-circuito: caminho de baixa resistência gera corrente excessiva."}
+    ]},
+    { id:"n3", topico:"Estequiometria e ligações químicas", peso:"distribuição equilibrada", guia:"Na ligação iônica, há transferência de elétrons entre um metal e um não metal. Na covalente, os átomos compartilham elétrons. Na metálica, presente nos metais, os elétrons livres garantem boa condutividade elétrica e térmica.\n\nA lei da conservação de massa afirma que a massa total dos reagentes é igual à massa total dos produtos — nada se perde, apenas se transforma.\n\nO número de mols se relaciona com a massa através da massa molar. Numa combustão completa, o carbono do combustível se transforma principalmente em CO₂ e água.", questoes:[
+      {q:"Em uma combustão completa, o carbono do combustível se transforma majoritariamente em:", opts:["Monóxido de carbono","Dióxido de carbono","Metano","Carbono puro"], correta:1, exp:"Combustão completa produz principalmente CO₂ e água."},
+      {q:"Uma ligação química em que há compartilhamento de elétrons entre átomos é chamada de:", opts:["Iônica","Covalente","Metálica","Nenhuma das anteriores"], correta:1, exp:"Ligação covalente: compartilhamento de elétrons."},
+      {q:"Uma ligação química formada pela transferência de elétrons entre um metal e um não metal é chamada de:", opts:["Covalente","Iônica","Metálica","Van der Waals"], correta:1, exp:"Ligação iônica: transferência de elétrons (perde/ganha)."},
+      {q:"Na estequiometria, a lei da conservação de massa afirma que:", opts:["A massa dos reagentes é sempre maior que a dos produtos","A massa total se conserva entre reagentes e produtos","A massa desaparece nas reações","Apenas o volume se conserva"], correta:1, exp:"A massa dos reagentes é igual à massa dos produtos."},
+      {q:"O número de mols de uma substância se relaciona com sua massa através:", opts:["Da densidade apenas","Da massa molar","Do volume apenas","Da temperatura ambiente"], correta:1, exp:"Mols = massa ÷ massa molar."},
+      {q:"Ligações metálicas são características de substâncias que apresentam, entre outras propriedades:", opts:["Baixa condutividade elétrica","Boa condutividade elétrica e térmica","Estrutura exclusivamente gasosa","Ausência total de elétrons livres"], correta:1, exp:"Metais conduzem bem eletricidade/calor devido a elétrons livres."}
+    ]},
+    { id:"n4", topico:"Bioenergética", peso:"7,5%", guia:"A fotossíntese converte luz solar em energia química (glicose), ocorrendo nos cloroplastos, que contêm clorofila.\n\nA respiração celular faz o caminho inverso: libera energia (ATP) a partir da quebra de nutrientes, usando oxigênio como aceptor final de elétrons — ocorre principalmente nas mitocôndrias.\n\nA fermentação ocorre na ausência (ou baixa quantidade) de oxigênio — é um processo anaeróbico. Em todos esses processos, o ATP é a principal molécula de energia usada pelas células.", questoes:[
+      {q:"O processo pelo qual plantas convertem luz solar em energia química é chamado de:", opts:["Respiração celular","Fotossíntese","Fermentação","Osmose"], correta:1, exp:"Fotossíntese converte luz em energia química (glicose)."},
+      {q:"A respiração celular tem como principal função:", opts:["Produzir luz","Liberar energia (ATP) a partir de nutrientes","Absorver CO₂ apenas","Produzir clorofila"], correta:1, exp:"Respiração celular gera ATP a partir da quebra de nutrientes."},
+      {q:"A fotossíntese ocorre principalmente em qual organela celular?", opts:["Mitocôndria","Cloroplasto","Núcleo","Ribossomo"], correta:1, exp:"Cloroplastos contêm clorofila e realizam a fotossíntese."},
+      {q:"Na respiração celular, o oxigênio é utilizado principalmente para:", opts:["Produzir glicose","Aceitar elétrons na cadeia respiratória, liberando energia","Formar clorofila","Substituir a água"], correta:1, exp:"O₂ é o aceptor final de elétrons na cadeia respiratória."},
+      {q:"A fermentação é um processo que ocorre:", opts:["Apenas na presença de oxigênio","Na ausência (ou baixa quantidade) de oxigênio","Somente em animais","Apenas em plantas"], correta:1, exp:"Fermentação é um processo anaeróbico (sem oxigênio)."},
+      {q:"O principal produto energético gerado tanto na respiração quanto ligado à fotossíntese é:", opts:["Água","ATP","Gás nitrogênio","Sal mineral"], correta:1, exp:"ATP é a molécula de energia usada pelas células."}
+    ]},
+    { id:"n5", topico:"Biomas brasileiros", peso:"recorrente", guia:"A Amazônia é o bioma de maior biodiversidade do Brasil, frequentemente associado a debates sobre desmatamento. O Cerrado é uma savana tropical, com árvores baixas e retorcidas.\n\nA Mata Atlântica sofreu forte devastação histórica pela ocupação urbana e agrícola desde o período colonial. O Pantanal é uma extensa planície sujeita a inundações periódicas, com grande biodiversidade.\n\nA Caatinga é adaptada ao clima semiárido do Nordeste. Em todos esses biomas, o desmatamento está frequentemente associado à expansão agropecuária.", questoes:[
+      {q:"O bioma brasileiro de maior biodiversidade, frequente em questões sobre desmatamento, é:", opts:["Caatinga","Amazônia","Pampa","Pantanal"], correta:1, exp:"A Amazônia é o bioma de maior biodiversidade do Brasil."},
+      {q:"O Cerrado é caracterizado principalmente por:", opts:["Vegetação de savana tropical, com árvores baixas e retorcidas","Floresta densa e úmida o ano todo","Vegetação exclusivamente aquática","Ausência total de vegetação"], correta:0, exp:"Cerrado é a savana tropical brasileira."},
+      {q:"A Mata Atlântica, historicamente, sofreu forte devastação principalmente devido a:", opts:["Ausência de exploração humana","Ocupação urbana e agrícola desde o período colonial","Excesso de proteção ambiental","Clima excessivamente seco"], correta:1, exp:"A ocupação humana intensa desde a colonização reduziu a Mata Atlântica."},
+      {q:"O Pantanal é conhecido principalmente por ser:", opts:["Um deserto árido","Uma extensa planície inundável de grande biodiversidade","Uma região exclusivamente montanhosa","Uma área urbana densa"], correta:1, exp:"Pantanal: planície sujeita a inundações periódicas, rica biodiversidade."},
+      {q:"A Caatinga é um bioma adaptado principalmente a:", opts:["Clima úmido tropical","Clima semiárido, com espécies resistentes à seca","Clima polar","Clima costeiro apenas"], correta:1, exp:"A Caatinga é adaptada ao clima semiárido do Nordeste."},
+      {q:"O desmatamento de biomas brasileiros está frequentemente associado a:", opts:["Aumento da biodiversidade local","Expansão agropecuária e perda de biodiversidade","Redução da atividade humana","Melhoria do equilíbrio climático local"], correta:1, exp:"O desmatamento geralmente decorre da expansão agropecuária."}
+    ]}
+  ]}
+];
+
+// ---------- STORAGE ----------
+const PROGRESS_KEY = "estudocerto_progress_v2";
+const STREAK_KEY = "estudocerto_streak";
+
+function getProgress() { try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {}; } catch(e){ return {}; } }
+function saveProgress(data) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(data)); }
+
+function registrarTentativa(trilhaId, nivelId, scorePct) {
+  const data = getProgress();
+  if (!data[trilhaId]) data[trilhaId] = {};
+  if (!data[trilhaId][nivelId]) data[trilhaId][nivelId] = { attempts: [], bestScore: 0 };
+  const nivelData = data[trilhaId][nivelId];
+  nivelData.attempts.push({ score: scorePct, date: new Date().toISOString() });
+  const isRecord = scorePct > nivelData.bestScore;
+  nivelData.bestScore = Math.max(nivelData.bestScore, scorePct);
+  saveProgress(data);
+  atualizarStreak();
+  return isRecord;
+}
+
+function atualizarStreak() {
+  const today = new Date().toISOString().slice(0,10);
+  let streak = {};
+  try { streak = JSON.parse(localStorage.getItem(STREAK_KEY)) || {}; } catch(e){ streak = {}; }
+  if (streak.lastDate === today) { return; }
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  if (streak.lastDate === yesterday) { streak.count = (streak.count||0) + 1; }
+  else { streak.count = 1; }
+  streak.lastDate = today;
+  localStorage.setItem(STREAK_KEY, JSON.stringify(streak));
+}
+
+function getStreak() {
+  try { return JSON.parse(localStorage.getItem(STREAK_KEY)) || {count:0}; } catch(e){ return {count:0}; }
+}
+
+// ---------- STATE ----------
+let currentTrilha = null;
+let currentNivel = null;
+
+// ---------- VIEW SWITCH ----------
+function showView(name) {
+  ["painel","trilhas","niveis","guia","simulado","resultado"].forEach(v => {
+    document.getElementById("view-"+v).classList.toggle("hidden", v !== name);
+  });
+  document.getElementById("tab-painel").classList.toggle("active", name === "painel");
+  document.getElementById("tab-trilhas").classList.toggle("active", ["trilhas","niveis","guia","simulado","resultado"].includes(name));
+  document.getElementById("streak-badge").textContent = "🔥 " + getStreak().count + " dias";
+  if (name === "painel") renderPainel();
+  if (name === "trilhas") renderTrilhas();
+}
+
+function voltarParaNiveis() { abrirTrilha(currentTrilha.id); }
+function voltarParaGuia() { abrirGuia(currentNivel); }
+
+// ---------- HELPERS ----------
+function mediaTrilha(trilhaId, data) {
+  const t = TRILHAS.find(x => x.id === trilhaId);
+  const dt = data[trilhaId] || {};
+  const scores = t.niveis.filter(n => dt[n.id]).map(n => dt[n.id].bestScore);
+  if (scores.length === 0) return undefined;
+  return scores.reduce((a,b)=>a+b,0) / scores.length;
+}
+function niveisConcluidos(trilhaId, data) {
+  const t = TRILHAS.find(x => x.id === trilhaId);
+  const dt = data[trilhaId] || {};
+  return t.niveis.filter(n => dt[n.id]).length;
+}
+
+// ---------- PAINEL ----------
+function renderPainel() {
+  const data = getProgress();
+  let totalAttempts = 0;
+  TRILHAS.forEach(t => t.niveis.forEach(n => { if (data[t.id] && data[t.id][n.id]) totalAttempts += data[t.id][n.id].attempts.length; }));
+
+  const medias = {};
+  TRILHAS.forEach(t => { const m = mediaTrilha(t.id, data); if (m !== undefined) medias[t.id] = m; });
+  const trilhasComDados = Object.keys(medias).length;
+
+  document.getElementById("stat-total").textContent = totalAttempts;
+  document.getElementById("stat-media").textContent = trilhasComDados > 0 ? Math.round(Object.values(medias).reduce((a,b)=>a+b,0)/trilhasComDados) + "%" : "—";
+
+  const barsContainer = document.getElementById("bars-container");
+  barsContainer.innerHTML = "";
+  TRILHAS.forEach(t => {
+    const avg = medias[t.id];
+    const pct = avg !== undefined ? Math.round(avg) : 0;
+    const concluidos = niveisConcluidos(t.id, data);
+    const color = avg === undefined ? "#d7d5e8" : (pct < 50 ? "var(--red)" : pct < 70 ? "var(--orange)" : "var(--green)");
+    const row = document.createElement("div");
+    row.className = "bar-row";
+    row.innerHTML = `<div class="lab"><b>${t.nome}</b><span>${avg !== undefined ? pct+"% · "+concluidos+"/"+t.niveis.length+" níveis" : "sem dados"}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${avg !== undefined ? pct : 4}%; background:${color};"></div></div>`;
+    barsContainer.appendChild(row);
+  });
+
+  const recoBox = document.getElementById("reco-box");
+  if (trilhasComDados === 0) {
+    recoBox.innerHTML = `<div class="lab-eyebrow">Por onde começar hoje</div>
+      <h3>Matemática — Matemática básica</h3>
+      <p>Esse tópico sozinho responde por 35% das questões de Matemática. É o melhor ponto de partida.</p>
+      <button class="btn" onclick="abrirTrilha('matematica')">Começar agora</button>`;
+  } else {
+    let weakest = null, weakestScore = 101;
+    TRILHAS.forEach(t => { if (medias[t.id] !== undefined && medias[t.id] < weakestScore) { weakest = t; weakestScore = medias[t.id]; } });
+    recoBox.innerHTML = `<div class="lab-eyebrow">Seu ponto fraco agora</div>
+      <h3>${weakest.nome} (${Math.round(weakestScore)}%)</h3>
+      <p>É a matéria com menor desempenho até agora. Recomendamos continuar essa trilha hoje.</p>
+      <button class="btn" onclick="abrirTrilha('${weakest.id}')">Estudar ${weakest.nome}</button>`;
+  }
+
+  const historyList = document.getElementById("history-list");
+  const allAttempts = [];
+  TRILHAS.forEach(t => t.niveis.forEach(n => {
+    if (data[t.id] && data[t.id][n.id]) {
+      data[t.id][n.id].attempts.forEach(a => allAttempts.push({ trilha: t.nome, topico: n.topico, score: a.score, date: a.date }));
+    }
+  }));
+  allAttempts.sort((a,b) => new Date(b.date) - new Date(a.date));
+  if (allAttempts.length === 0) {
+    historyList.innerHTML = `<p class="muted">Nenhum simulado feito ainda.</p>`;
+  } else {
+    historyList.innerHTML = allAttempts.slice(0,5).map(a => {
+      const d = new Date(a.date);
+      const dstr = d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+      return `<div class="history-item"><span class="l">${dstr} · ${a.trilha} — ${a.topico}</span><span class="r">${a.score}%</span></div>`;
+    }).join("");
+  }
+}
+
+// ---------- TRILHAS ----------
+function renderTrilhas() {
+  const data = getProgress();
+  const list = document.getElementById("trilhas-list");
+  list.innerHTML = "";
+  TRILHAS.forEach(t => {
+    const concluidos = niveisConcluidos(t.id, data);
+    const div = document.createElement("div");
+    div.className = "card trilha-card";
+    div.onclick = () => abrirTrilha(t.id);
+    div.innerHTML = `<div class="top"><h3>${t.nome}</h3><span class="pct">${t.prioridade}</span></div>
+      <div class="prog">${concluidos}/${t.niveis.length} níveis concluídos</div>`;
+    list.appendChild(div);
+  });
+}
+
+function abrirTrilha(id) {
+  currentTrilha = TRILHAS.find(t => t.id === id);
+  const data = getProgress();
+  document.getElementById("niveis-title").textContent = currentTrilha.nome;
+  const list = document.getElementById("niveis-list");
+  list.innerHTML = "";
+  currentTrilha.niveis.forEach((n, i) => {
+    const dt = (data[currentTrilha.id] || {})[n.id];
+    const done = !!dt;
+    const locked = i > 0 && !(data[currentTrilha.id] || {})[currentTrilha.niveis[i-1].id];
+    const div = document.createElement("div");
+    div.className = "card nivel-card" + (done ? " done" : "") + (locked ? " locked" : "");
+    div.innerHTML = `<div class="circle">${done ? "✓" : (i+1)}</div>
+      <div class="info"><h4>${n.topico}</h4><p>${n.peso}</p></div>
+      ${done ? `<div class="score">${dt.bestScore}%</div>` : (locked ? `<div class="score" style="color:#9a97b3;">🔒</div>` : "")}`;
+    if (!locked) div.onclick = () => abrirGuia(n);
+    list.appendChild(div);
+  });
+  showView("niveis");
+}
+
+function abrirGuia(nivel) {
+  currentNivel = nivel;
+  document.getElementById("guia-topico-tag").textContent = currentTrilha.nome;
+  document.getElementById("guia-title").textContent = nivel.topico + " (" + nivel.peso + ")";
+  const conteudo = document.getElementById("guia-conteudo");
+  conteudo.innerHTML = nivel.guia.split("\n\n").map(p => `<p>${p}</p>`).join("");
+  document.getElementById("btn-ir-simulado").onclick = () => abrirNivel(nivel);
+  showView("guia");
+}
+
+function abrirNivel(nivel) {
+  currentNivel = nivel;
+  document.getElementById("sim-title").textContent = currentTrilha.nome + " — " + nivel.topico;
+  const container = document.getElementById("sim-questions");
+  container.innerHTML = "";
+  nivel.questoes.forEach((q, qi) => {
+    const div = document.createElement("div");
+    div.className = "question";
+    div.dataset.qi = qi;
+    let optsHtml = "";
+    q.opts.forEach((opt, oi) => {
+      optsHtml += `<label class="option" data-oi="${oi}"><input type="radio" name="q${qi}" value="${oi}"> <span>${opt}</span></label>`;
+    });
+    div.innerHTML = `<div class="qtext">${qi+1}. ${q.q}</div>${optsHtml}<div class="explanation" id="exp-${qi}">${q.exp}</div>`;
+    container.appendChild(div);
+  });
+  document.getElementById("btn-corrigir").classList.remove("hidden");
+  showView("simulado");
+}
+
+function corrigirSimulado() {
+  let acertos = 0;
+  currentNivel.questoes.forEach((q, qi) => {
+    const selected = document.querySelector(`input[name="q${qi}"]:checked`);
+    const options = document.querySelectorAll(`.question[data-qi="${qi}"] .option`);
+    options.forEach((opt, oi) => {
+      opt.classList.remove("correct","wrong");
+      if (oi === q.correta) opt.classList.add("correct");
+      if (selected && parseInt(selected.value) === oi && oi !== q.correta) opt.classList.add("wrong");
+    });
+    document.getElementById("exp-"+qi).classList.add("show");
+    if (selected && parseInt(selected.value) === q.correta) acertos++;
+  });
+  const pct = Math.round((acertos / currentNivel.questoes.length) * 100);
+  const isRecord = registrarTentativa(currentTrilha.id, currentNivel.id, pct);
+  document.getElementById("btn-corrigir").classList.add("hidden");
+
+  setTimeout(() => {
+    document.getElementById("res-score").textContent = pct + "%";
+    document.getElementById("res-text").textContent = acertos + " de " + currentNivel.questoes.length + " questões corretas em " + currentNivel.topico;
+    document.getElementById("res-record").classList.toggle("hidden", !isRecord);
+    showView("resultado");
+  }, 900);
+}
+
+// ---------- INIT ----------
+document.getElementById("streak-badge").textContent = "🔥 " + getStreak().count + " dias";
+renderPainel();
+</script>
+</body>
+</html>
