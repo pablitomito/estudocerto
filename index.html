@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESTUDOCERTO — Estude o que realmente vai cair na sua prova</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#0f1222; --muted:#5b5f6b; --bg:#ffffff; --soft:#f6f5fb; --line:#ececf1;
+    --accent1:#5b47e8; --accent2:#8b5cf6; --card:#ffffff; --green:#16a34a;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',Arial,sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:640px; margin:0 auto; padding:0 22px; }
+  img { max-width:100%; display:block; }
+  h1,h2,h3,h4 { letter-spacing:-0.02em; }
+  .eyebrow { display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:0.06em; color:var(--accent1); text-transform:uppercase; margin-bottom:14px; }
+  .cta-btn { display:block; text-align:center; background:linear-gradient(135deg,var(--accent1),var(--accent2)); color:white; font-weight:700; font-size:16.5px; padding:17px 28px; border-radius:14px; text-decoration:none; box-shadow:0 8px 24px rgba(91,71,232,0.28); }
+  .cta-sub { text-align:center; font-size:12.5px; color:var(--muted); margin-top:10px; }
+  section { padding:60px 0; }
+
+  section.hero { padding:68px 0 44px; text-align:center; background:radial-gradient(circle at 50% 0%, #1e2140, #14162b 70%); }
+  section.hero .eyebrow { color:#b9aef7; }
+  section.hero h1 { font-size:33px; font-weight:800; line-height:1.24; margin-bottom:16px; color:white; }
+  section.hero h1 .grad { background:linear-gradient(135deg,#8b93ff,#c9a4ff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  section.hero p.sub { font-size:16.5px; color:#c3c2d6; max-width:460px; margin:0 auto 28px; }
+  section.hero .cta-sub { color:#9695ab; }
+
+  section.mockup { text-align:center; padding:0 0 56px; background:linear-gradient(180deg, #14162b, var(--bg) 60%); margin-top:-1px; }
+  .app-frame {
+    max-width:280px; margin:0 auto; border-radius:26px; border:8px solid #14162b;
+    box-shadow:0 24px 60px rgba(15,18,34,0.18); overflow:hidden;
+  }
+  .app-frame .fake-header { background:linear-gradient(135deg,var(--accent1),var(--accent2)); color:white; padding:18px 16px; text-align:left; }
+  .app-frame .fake-header .b { font-weight:800; font-size:14px; }
+  .app-frame .fake-header .t { font-size:11px; opacity:0.85; }
+  .app-frame .fake-body { background:#f7f7fb; padding:14px; }
+  .fake-bar-row { margin-bottom:10px; }
+  .fake-bar-row .l { display:flex; justify-content:space-between; font-size:10.5px; margin-bottom:3px; color:#333; }
+  .fake-bar-track { background:#eceaf6; border-radius:6px; height:7px; overflow:hidden; }
+  .fake-bar-fill { height:100%; border-radius:6px; }
+  .fake-reco { background:#eef0ff; border-radius:10px; padding:10px; margin-top:10px; font-size:10.5px; color:#4a4a5a; }
+  .fake-reco b { color:var(--accent1); }
+
+  section.problem { background:var(--soft); }
+  section.problem h2 { font-size:25px; font-weight:800; text-align:center; margin-bottom:18px; max-width:460px; margin-left:auto; margin-right:auto; }
+  section.problem p { color:var(--muted); font-size:15.5px; text-align:center; max-width:460px; margin:0 auto; }
+
+  section.solution h2 { font-size:25px; font-weight:800; text-align:center; margin-bottom:14px; }
+  section.solution p.lead { color:var(--muted); font-size:15.5px; text-align:center; max-width:460px; margin:0 auto 40px; }
+  .modules { display:flex; flex-direction:column; gap:14px; }
+  .module-card { background:var(--card); border:1px solid var(--line); border-top:3px solid var(--accent1); border-radius:18px; padding:26px 24px; box-shadow:0 6px 20px rgba(15,18,34,0.06); }
+  .module-card .tagnum { font-size:12px; font-weight:700; color:var(--accent1); letter-spacing:0.05em; margin-bottom:8px; text-transform:uppercase; }
+  .module-card h3 { font-size:18.5px; margin-bottom:8px; }
+  .module-card p { color:var(--muted); font-size:14px; }
+
+  section.benefits { background:var(--soft); }
+  section.benefits h2 { font-size:25px; font-weight:800; text-align:center; margin-bottom:36px; }
+  .benefit-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:560px){ .benefit-grid{ grid-template-columns:1fr; } }
+  .benefit-item { background:var(--card); border-radius:16px; padding:18px; border:1px solid var(--line); }
+  .benefit-item .ic { font-size:20px; margin-bottom:8px; }
+  .benefit-item h4 { font-size:14.5px; margin-bottom:4px; }
+  .benefit-item p { font-size:13px; color:var(--muted); }
+
+  section.proof h2 { font-size:25px; font-weight:800; text-align:center; margin-bottom:36px; }
+  .chat-grid { display:flex; flex-direction:column; gap:12px; max-width:420px; margin:0 auto; }
+  .chat-bubble { background:#e9e6fb; border-radius:14px 14px 14px 2px; padding:13px 15px; max-width:88%; align-self:flex-start; }
+  .chat-bubble.right { align-self:flex-end; border-radius:14px 14px 2px 14px; background:#fff; border:1px solid var(--line); }
+  .chat-bubble .name { font-size:12px; font-weight:700; color:var(--accent1); margin-bottom:3px; }
+  .chat-bubble p { font-size:13.5px; margin:0; }
+  .chat-bubble .time { font-size:10px; color:#9a98ab; text-align:right; margin-top:3px; }
+
+  section.offer { text-align:center; }
+  .offer-card { background:linear-gradient(160deg,#14162b,#1e2140); border-radius:24px; padding:42px 28px; color:white; box-shadow:0 20px 50px rgba(15,18,34,0.25); }
+  .offer-card .eyebrow { color:#b9aef7; }
+  .offer-card h2 { font-size:23px; margin-bottom:18px; color:white; }
+  .offer-card .includes { list-style:none; text-align:left; max-width:300px; margin:0 auto 24px; }
+  .offer-card .includes li { padding:7px 0; font-size:14px; color:#d9d9ea; border-bottom:1px solid rgba(255,255,255,0.08); }
+  .offer-card .includes li:before { content:"✓ "; color:#a78bfa; font-weight:800; }
+  .offer-card .old { text-decoration:line-through; color:#8a8ba3; font-size:15px; }
+  .offer-card .new { font-size:42px; font-weight:800; margin:4px 0 20px; }
+  .offer-card .cta-btn { background:white; color:var(--accent1); box-shadow:none; }
+  .offer-card .cta-sub { color:#9695ab; }
+
+  section.guarantee { text-align:center; }
+  .guarantee-box { border:1px solid var(--line); border-radius:18px; padding:30px 24px; max-width:460px; margin:0 auto; background:var(--soft); }
+  .guarantee-box h3 { font-size:17px; margin-bottom:10px; }
+  .guarantee-box p { font-size:14px; color:var(--muted); }
+
+  section.faq h2 { font-size:25px; font-weight:800; text-align:center; margin-bottom:32px; }
+  details { border-bottom:1px solid var(--line); padding:15px 0; }
+  details summary { font-size:15px; font-weight:600; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; }
+  details summary::-webkit-details-marker{ display:none; }
+  details summary:after { content:"+"; font-size:19px; color:var(--accent1); font-weight:400; }
+  details[open] summary:after { content:"–"; }
+  details p { margin-top:9px; font-size:14px; color:var(--muted); }
+
+  section.final-cta { text-align:center; padding:52px 0 44px; background:linear-gradient(135deg,var(--accent1),var(--accent2)); }
+  section.final-cta h2 { font-size:25px; font-weight:800; margin-bottom:12px; max-width:400px; margin-left:auto; margin-right:auto; color:white; }
+  section.final-cta p { color:rgba(255,255,255,0.85); margin-bottom:24px; }
+  section.final-cta .cta-btn { background:white; color:var(--accent1); box-shadow:none; }
+
+  footer { padding:26px 0 46px; text-align:center; }
+  footer p { font-size:11.5px; color:#b0b3ba; max-width:460px; margin:0 auto; }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">ESTUDOCERTO</span>
+    <h1>Estude o que realmente <span class="grad">vai cair na sua prova.</span></h1>
+    <p class="sub">Trilhas por matéria na ordem certa, mini simulados que corrigem sozinhos e um painel que mostra exatamente onde focar. Mais foco, menos esforço perdido.</p>
+    <a class="cta-btn" href="#oferta">Quero acessar agora</a>
+    <p class="cta-sub">Acesso imediato · Uso pelo celular ou computador · Garantia de 7 dias</p>
+  </div>
+</section>
+
+<section class="mockup">
+  <div class="wrap">
+    <div class="app-frame">
+      <div class="fake-header">
+        <div class="b">ESTUDOCERTO</div>
+        <div class="t">Seu painel</div>
+      </div>
+      <div class="fake-body">
+        <div class="fake-bar-row"><div class="l"><span>Matemática</span><span>78%</span></div><div class="fake-bar-track"><div class="fake-bar-fill" style="width:78%;background:#16a34a;"></div></div></div>
+        <div class="fake-bar-row"><div class="l"><span>Linguagens</span><span>64%</span></div><div class="fake-bar-track"><div class="fake-bar-fill" style="width:64%;background:#e08a1f;"></div></div></div>
+        <div class="fake-bar-row"><div class="l"><span>Humanas</span><span>40%</span></div><div class="fake-bar-track"><div class="fake-bar-fill" style="width:40%;background:#dc2626;"></div></div></div>
+        <div class="fake-bar-row"><div class="l"><span>Natureza</span><span>—</span></div><div class="fake-bar-track"><div class="fake-bar-fill" style="width:4%;background:#d7d5e8;"></div></div></div>
+        <div class="fake-reco">Ponto fraco agora: <b>Ciências Humanas (40%)</b>. Recomendamos revisar essa trilha antes de avançar.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="problem">
+  <div class="wrap">
+    <h2>Estudar sem saber o que priorizar é o maior desperdício de tempo na reta final.</h2>
+    <p>Faltam menos de 90 dias para o ENEM. Nessa fase, cada hora de estudo importa — mas sem saber o que mais cai e onde você está mais fraco, o tempo se perde entre tópicos que pouco aparecem na prova.</p>
+  </div>
+</section>
+
+<section class="solution">
+  <div class="wrap">
+    <h2>Um sistema, três engrenagens.</h2>
+    <p class="lead">Trilhas para saber o que estudar, simulados para fixar, e um painel que decide o próximo passo por você.</p>
+    <div class="modules">
+      <div class="module-card">
+        <div class="tagnum">Trilhas por matéria</div>
+        <h3>Estude na ordem certa</h3>
+        <p>Cada trilha é organizada pela frequência real de cobrança do ENEM — você começa pelo que mais cai, não pelo que aparece primeiro no seu material.</p>
+      </div>
+      <div class="module-card">
+        <div class="tagnum">Mini simulados</div>
+        <h3>Fixe o conteúdo na hora</h3>
+        <p>Depois de cada trilha, um mini simulado no estilo ENEM corrige automaticamente e explica cada resposta — sem esperar por correção manual.</p>
+      </div>
+      <div class="module-card">
+        <div class="tagnum">Painel inteligente</div>
+        <h3>Saiba o que estudar depois</h3>
+        <p>O painel acompanha seu desempenho por matéria, identifica seu ponto mais fraco no momento e recomenda a próxima trilha — sem você ter que adivinhar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="benefits">
+  <div class="wrap">
+    <h2>O que muda na sua rotina</h2>
+    <div class="benefit-grid">
+      <div class="benefit-item"><div class="ic">🎯</div><h4>Foco real</h4><p>Você sabe onde investir seu tempo de estudo a cada semana.</p></div>
+      <div class="benefit-item"><div class="ic">⚡</div><h4>Feedback imediato</h4><p>Corrige sozinho, sem esperar ninguém revisar seu simulado.</p></div>
+      <div class="benefit-item"><div class="ic">📊</div><h4>Progresso visível</h4><p>Você acompanha sua evolução matéria por matéria, não no achismo.</p></div>
+      <div class="benefit-item"><div class="ic">📱</div><h4>No seu ritmo</h4><p>Funciona no celular ou computador, quando e onde você tiver tempo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="proof">
+  <div class="wrap">
+    <h2>Quem já está usando</h2>
+    <div class="chat-grid">
+      <div class="chat-bubble"><div class="name">Larissa · 3º ano</div><p>o painel mostrando meu ponto fraco foi o que mais mudou minha rotina, parei de estudar tudo igual</p><div class="time">21:14 ✓✓</div></div>
+      <div class="chat-bubble right"><div class="name">Pedro H.</div><p>os mini simulados são rápidos, dá pra fazer entre uma aula e outra e já ver o que errei</p><div class="time">09:02 ✓✓</div></div>
+      <div class="chat-bubble"><div class="name">Camila R.</div><p>gostei que ele já diz o que estudar depois, eu ficava perdida decidindo isso antes</p><div class="time">18:47 ✓✓</div></div>
+      <div class="chat-bubble right"><div class="name">Thiago M.</div><p>uso mais nos intervalos, é rápido e o painel deixa claro onde eu tô mais fraco</p><div class="time">20:36 ✓✓</div></div>
+      <div class="chat-bubble"><div class="name">Ana Beatriz</div><p>as trilhas seguem uma ordem que faz sentido, comecei pelo que mais cai e já senti diferença</p><div class="time">14:58 ✓✓</div></div>
+      <div class="chat-bubble right"><div class="name">Vinícius S.</div><p>vale muito o preço, uso praticamente todo dia só pra fazer um simulado rápido</p><div class="time">11:23 ✓✓</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="offer" id="oferta">
+  <div class="wrap">
+    <div class="offer-card">
+      <span class="eyebrow">Acesso ESTUDOCERTO</span>
+      <h2>Trilhas + Simulados + Painel Inteligente</h2>
+      <ul class="includes">
+        <li>Trilhas por matéria, na ordem de prioridade</li>
+        <li>Mini simulados com correção automática</li>
+        <li>Painel de desempenho e recomendação</li>
+        <li>Acesso imediato e vitalício</li>
+      </ul>
+      <div class="old">De R$59,90</div>
+      <div class="new">R$29,90</div>
+      <a class="cta-btn" href="https://pay.kiwify.com.br/SEU-LINK-ESTUDOCERTO">Quero acessar agora</a>
+      <p class="cta-sub">Menos que uma pizza · Pagamento único · Garantia de 7 dias</p>
+    </div>
+  </div>
+</section>
+
+<section class="guarantee">
+  <div class="wrap">
+    <div class="guarantee-box">
+      <h3>Garantia de 7 dias</h3>
+      <p>Use o ESTUDOCERTO, faça suas primeiras trilhas e simulados, e decida se faz sentido pra você. Se não fizer, é só pedir o reembolso — sem burocracia.</p>
+    </div>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="wrap">
+    <h2>Perguntas frequentes</h2>
+    <details><summary>Preciso instalar algum aplicativo?</summary><p>Não. O ESTUDOCERTO funciona direto no navegador, do celular ou computador, sem instalação.</p></details>
+    <details><summary>O acesso é vitalício?</summary><p>Sim. Depois da compra você acessa sempre que quiser, até o dia da prova e depois dele.</p></details>
+    <details><summary>Funciona sem internet?</summary><p>É necessário estar conectado para acessar pela primeira vez. Seu progresso fica salvo no seu próprio navegador.</p></details>
+    <details><summary>Quantas matérias estão disponíveis?</summary><p>As trilhas cobrem Matemática, Linguagens, Ciências Humanas e Ciências da Natureza, priorizadas pela frequência real de cobrança do ENEM.</p></details>
+    <details><summary>Isso substitui meus estudos normais?</summary><p>Não. O ESTUDOCERTO organiza a prioridade e fixa conteúdo com simulados — ele complementa o que você já estuda, não substitui aulas ou videoaulas.</p></details>
+    <details><summary>E se eu não gostar?</summary><p>Você tem a garantia de 7 dias — solicite o reembolso dentro do prazo, sem burocracia.</p></details>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="wrap">
+    <h2>Faltam menos de 90 dias. Estude melhor, não mais.</h2>
+    <p>Acesso completo por R$29,90.</p>
+    <a class="cta-btn" href="#oferta">Quero acessar agora</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Este material é de apoio aos estudos e não possui vínculo oficial com o INEP ou o Ministério da Educação. © 2026 ESTUDOCERTO.</p>
+  </div>
+</footer>
+
+</body>
+</html>
